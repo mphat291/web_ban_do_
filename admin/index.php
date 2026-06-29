@@ -1,7 +1,7 @@
 <?php
 require_once '../config/sys_config.php';
 
-// Bảo mật: Nếu chưa đăng nhập hoặc không phải admin thì đá bay ra trang login
+// Bảo mật: Nếu chưa đăng nhập hoặc không phải admin thì di chuyển ra trang login
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     header('Location: ' . BASE_URL . 'login.php');
     exit();
@@ -10,19 +10,19 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
 <?php
 require_once '../config/sys_config.php';
 
-// Bảo mật: Nếu chưa đăng nhập hoặc không phải admin thì đá bay ra trang login
+// Bảo mật: Nếu chưa đăng nhập hoặc không phải admin thì di chuyển ra trang login
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     header('Location: ' . BASE_URL . 'login.php');
     exit();
 }
 
-// --- ĐOẠN THÊM MỚI 1: Xử lý xóa món ăn và nạp file kết nối DB ---
+// --- Xử lý xóa món ăn và nạp file kết nối DB ---
 require_once '../config/database.php'; 
 
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $id_delete = (int)$_GET['id'];
     try {
-        // Lấy tên ảnh cũ để xóa file trên server cho đỡ rác
+        // Lấy tên ảnh cũ để xóa file trên server nhằm tối ưu không gian lưu trữ
         $stmt_img = $conn->prepare("SELECT image FROM products WHERE id = :id");
         $stmt_img->execute(['id' => $id_delete]);
         $product = $stmt_img->fetch(PDO::FETCH_ASSOC);
@@ -33,7 +33,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
         // Xóa món ăn trong Database
         $stmt = $conn->prepare("DELETE FROM products WHERE id = :id");
         $stmt->execute(['id' => $id_delete]);
-        $_SESSION['success_msg'] = "Xóa món ăn thành công rồi ní ơi!";
+        $_SESSION['success_msg'] = "Xóa món ăn thành công!";
     } catch (PDOException $e) {
         $_SESSION['error_msg'] = "Lỗi xóa món ăn: " . $e->getMessage();
     }
@@ -48,7 +48,6 @@ try {
 } catch (PDOException $e) {
     $products = [];
 }
-// --- HẾT ĐOẠN THÊM MỚI 1 ---
 ?>
 
 <!DOCTYPE html>
@@ -108,7 +107,7 @@ try {
                                     <td class="text-danger fw-bold"><?= number_format($pro['price'], 0, ',', '.') ?> đ</td>
                                     <td>
                                         <a href="edit_product.php?id=<?= $pro['id'] ?>" class="btn btn-warning btn-sm py-0">Sửa</a>
-                                        <a href="index.php?action=delete&id=<?= $pro['id'] ?>" class="btn btn-danger btn-sm py-0" onclick="return confirm('Ní chắc chắn muốn xóa không?')">Xóa</a>
+                                        <a href="index.php?action=delete&id=<?= $pro['id'] ?>" class="btn btn-danger btn-sm py-0" onclick="return confirm('Bạn có chắc chắn muốn xóa món ăn này không?')">Xóa</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -118,8 +117,6 @@ try {
                     </tbody>
                 </table>
             </div>
-            <p>Hệ thống phân quyền Auth đã chạy chuẩn đét. Giờ ní có thể bàn giao folder...</p>
-            <p>Hệ thống phân quyền Auth đã chạy chuẩn đét. Giờ ní có thể bàn giao folder <code>admin</code> này cho bạn làm chức năng CRUD món ăn rồi đó!</p>
             <a href="../logout.php" class="btn btn-dark mt-3">Đăng xuất hệ thống</a>
         </div>
     </div>

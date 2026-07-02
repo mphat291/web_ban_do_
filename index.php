@@ -1,5 +1,14 @@
 <?php
 require_once 'config/sys_config.php';
+require_once 'config/database.php'; // Khai báo kết nối CSDL để lấy món ăn
+
+// Truy vấn lấy danh sách món ăn từ database
+try {
+    $stmt = $conn->query("SELECT * FROM products ORDER BY id DESC");
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $products = [];
+}
 ?>
 
 <!DOCTYPE html>
@@ -28,8 +37,46 @@ require_once 'config/sys_config.php';
             <a href="login.php" class="btn btn-warning text-white fw-bold">Đăng Nhập Ngay</a>
         <?php endif; ?>
         
-        <div class="mt-4 p-5 bg-white rounded shadow-sm text-muted">
-            <i>[Phần hiển thị danh sách món ăn, danh mục và giỏ hàng sẽ do Thành viên B và C đảm nhiệm triển khai tiếp tại đây]</i>
+        <div class="mt-4 text-start">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold text-danger m-0">🍕 Thực Đơn Nổi Bật</h4>
+    <a href="cart.php" class="btn btn-success fw-bold shadow-sm text-white">
+        🛒 Xem Giỏ Hàng
+        <?php 
+        $cart_count = isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'quantity')) : 0;
+        if ($cart_count > 0) {
+            echo "<span class='badge bg-danger ms-1'>$cart_count</span>";
+        }
+        ?>
+    </a>
+</div>
+            <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
+                <?php if (count($products) > 0): ?>
+                    <?php foreach ($products as $pro): ?>
+                        <div class="col">
+                            <div class="card h-100 shadow-sm border-0">
+                                <?php if (!empty($pro['image'])): ?>
+                                    <img src="uploads/<?= htmlspecialchars($pro['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($pro['name']) ?>" style="height: 200px; object-fit: cover;">
+                                <?php else: ?>
+                                    <img src="https://via.placeholder.com/200?text=No+Image" class="card-img-top" style="height: 200px; object-fit: cover;">
+                                <?php endif; ?>
+                                
+                                <div class="card-body text-center d-flex flex-column">
+                                    <h6 class="card-title fw-bold text-dark"><?= htmlspecialchars($pro['name']) ?></h6>
+                                    <p class="card-text text-danger fw-bold fs-5 mt-auto mb-3"><?= number_format($pro['price'], 0, ',', '.') ?> đ</p>
+                                    <a href="add_to_cart.php?id=<?= $pro['id'] ?>" class="btn btn-warning w-100 fw-bold rounded-pill text-dark shadow-sm">🛒 Thêm vào giỏ</a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-12">
+                        <div class="p-5 bg-white rounded shadow-sm text-center text-muted">
+                            <i>Hiện chưa có món ăn nào trong thực đơn. Hãy vào trang quản trị để thêm món!</i>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </body>

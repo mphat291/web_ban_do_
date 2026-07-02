@@ -5,5 +5,5 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Định nghĩa đường dẫn gốc của dự án (giúp làm link không bị lỗi điều hướng)
-define('BASE_URL', 'http://localhost/web_ban_do_an/');
+define('BASE_URL', '/web_ban_do_/');
 ?>
